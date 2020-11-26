@@ -1,20 +1,218 @@
-// ConsoleSnake.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
+// Copyright (C) Microsoft. All rights reserved.
+//
+#define DEFINE_CONSOLEV2_PROPERTIES
 
-#include <iostream>
+// System headers
+#include <windows.h>
 
-int main()
+// Standard library C-style
+#include <wchar.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#define ESC "\x1b"
+#define CSI "\x1b["
+#define CONSOLE_WIDTH 150
+#define CONSOLE_HEIGHT 100
+
+bool EnableVTMode()
 {
-    std::cout << "Hello World!\n";
+	// Set output mode to handle virtual terminal sequences
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hOut == INVALID_HANDLE_VALUE)
+	{
+		return false;
+	}
+
+	DWORD dwMode = 0;
+	if (!GetConsoleMode(hOut, &dwMode))
+	{
+		return false;
+	}
+
+	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	if (!SetConsoleMode(hOut, dwMode))
+	{
+		return false;
+	}
+	return true;
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
+void FixConsoleSize()
+{
+	HWND consoleWindow = GetConsoleWindow();
+	SetWindowLongPtr(consoleWindow, GWL_STYLE, GetWindowLong(consoleWindow, GWL_STYLE) & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX & ~WS_VSCROLL & ~WS_HSCROLL);
+}
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+bool SetConsoleBuffer()
+{
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hOut == INVALID_HANDLE_VALUE)
+	{
+		return false;
+	}
+	SMALL_RECT windowSize = { 0, 0, CONSOLE_WIDTH - 1, CONSOLE_HEIGHT - 1 };
+
+	// Change the console window size:
+	if (!SetConsoleWindowInfo(hOut, TRUE, &windowSize))
+	{
+		return false;
+	}
+}
+
+void PrintVerticalBorder()
+{
+	printf(ESC "(0"); // Enter Line drawing mode
+	printf(CSI "104;93m"); // bright yellow on bright blue
+	printf("x"); // in line drawing mode, \x78 -> \u2502 "Vertical Bar"
+	printf(CSI "0m"); // restore color
+	printf(ESC "(B"); // exit line drawing mode
+}
+
+void PrintHorizontalBorder(COORD const Size, bool fIsTop)
+{
+	printf(ESC "(0"); // Enter Line drawing mode
+	printf(CSI "104;93m"); // Make the border bright yellow on bright blue
+	printf(fIsTop ? "l" : "m"); // print left corner 
+
+	for (int i = 1; i < Size.X - 1; i++)
+		printf("q"); // in line drawing mode, \x71 -> \u2500 "HORIZONTAL SCAN LINE-5"
+
+	printf(fIsTop ? "k" : "j"); // print right corner
+	printf(CSI "0m");
+	printf(ESC "(B"); // exit line drawing mode
+}
+
+void PrintStatusLine(const char* const pszMessage, COORD const Size)
+{
+	printf(CSI "%d;1H", Size.Y);
+	printf(CSI "K"); // clear the line
+	printf(pszMessage);
+}
+
+bool SetupConsole()
+{
+	bool fSuccess = EnableVTMode();
+	FixConsoleSize();
+	fSuccess = SetConsoleBuffer();
+	return fSuccess;
+}
+
+int __cdecl wmain(int argc, WCHAR* argv[])
+{
+	argc; // unused
+	argv; // unused
+	//First, enable VT mode
+	bool fSuccess = SetupConsole();
+	if (!fSuccess)
+	{
+		printf("Unable to enter VT processing mode. Quitting.\n");
+		return -1;
+	}
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hOut == INVALID_HANDLE_VALUE)
+	{
+		printf("Couldn't get the console handle. Quitting.\n");
+		return -1;
+	}
+
+	CONSOLE_SCREEN_BUFFER_INFO ScreenBufferInfo;
+	GetConsoleScreenBufferInfo(hOut, &ScreenBufferInfo);
+	COORD Size;
+	Size.X = ScreenBufferInfo.srWindow.Right - ScreenBufferInfo.srWindow.Left + 1;
+	Size.Y = ScreenBufferInfo.srWindow.Bottom - ScreenBufferInfo.srWindow.Top + 1;
+
+	// Enter the alternate buffer
+	printf(CSI "?1049h");
+
+	// Clear screen, tab stops, set, stop at columns 16, 32
+	printf(CSI "1;1H");
+	printf(CSI "2J"); // Clear screen
+
+	int iNumTabStops = 4; // (0, 20, 40, width)
+	printf(CSI "3g"); // clear all tab stops
+	printf(CSI "1;20H"); // Move to column 20
+	printf(ESC "H"); // set a tab stop
+
+	printf(CSI "1;40H"); // Move to column 40
+	printf(ESC "H"); // set a tab stop
+
+	// Set scrolling margins to 3, h-2
+	printf(CSI "3;%dr", Size.Y - 2);
+	int iNumLines = Size.Y - 4;
+
+	printf(CSI "1;1H");
+	printf(CSI "102;30m");
+	printf("Windows 10 Anniversary Update - VT Example");
+	printf(CSI "0m");
+
+	// Print a top border - Yellow
+	printf(CSI "2;1H");
+	PrintHorizontalBorder(Size, true);
+
+	// // Print a bottom border
+	printf(CSI "%d;1H", Size.Y - 1);
+	PrintHorizontalBorder(Size, false);
+
+	wchar_t wch;
+
+	// draw columns
+	printf(CSI "3;1H");
+	int line = 0;
+	for (line = 0; line < iNumLines * iNumTabStops; line++)
+	{
+		PrintVerticalBorder();
+		if (line + 1 != iNumLines * iNumTabStops) // don't advance to next line if this is the last line
+			printf("\t"); // advance to next tab stop
+
+	}
+
+	PrintStatusLine("Press any key to see text printed between tab stops.", Size);
+	wch = _getwch();
+
+	// Fill columns with output
+	printf(CSI "3;1H");
+	for (line = 0; line < iNumLines; line++)
+	{
+		int tab = 0;
+		for (tab = 0; tab < iNumTabStops - 1; tab++)
+		{
+			PrintVerticalBorder();
+			printf("line=%d", line);
+			printf("\t"); // advance to next tab stop
+		}
+		PrintVerticalBorder();// print border at right side
+		if (line + 1 != iNumLines)
+			printf("\t"); // advance to next tab stop, (on the next line)
+	}
+
+	PrintStatusLine("Press any key to demonstrate scroll margins", Size);
+	wch = _getwch();
+
+	printf(CSI "3;1H");
+	for (line = 0; line < iNumLines * 2; line++)
+	{
+		printf(CSI "K"); // clear the line
+		int tab = 0;
+		for (tab = 0; tab < iNumTabStops - 1; tab++)
+		{
+			PrintVerticalBorder();
+			printf("line=%d", line);
+			printf("\t"); // advance to next tab stop
+		}
+		PrintVerticalBorder(); // print border at right side
+		if (line + 1 != iNumLines * 2)
+		{
+			printf("\n"); //Advance to next line. If we're at the bottom of the margins, the text will scroll.
+			printf("\r"); //return to first col in buffer
+		}
+	}
+
+	PrintStatusLine("Press any key to exit", Size);
+	wch = _getwch();
+
+	// Exit the alternate buffer
+	printf(CSI "?1049l");
+
+}
