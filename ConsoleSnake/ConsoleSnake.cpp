@@ -1,74 +1,17 @@
-//
-// Copyright (C) Microsoft. All rights reserved.
-//
-#define DEFINE_CONSOLEV2_PROPERTIES
-
 // System headers
-#include <windows.h>
 #include <iostream>
+#include <string>
 
 // Standard library C-style
 #include <wchar.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "Console.h"
 
 #define ESC "\x1b"
 #define CSI "\x1b["
 #define CONSOLE_WIDTH 120
 #define CONSOLE_HEIGHT 40
-
-bool EnableVTMode()
-{
-	// Set output mode to handle virtual terminal sequences
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	if (hOut == INVALID_HANDLE_VALUE)
-	{
-		return false;
-	}
-
-	DWORD dwMode = 0;
-	if (!GetConsoleMode(hOut, &dwMode))
-	{
-		return false;
-	}
-
-	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-	if (!SetConsoleMode(hOut, dwMode))
-	{
-		return false;
-	}
-	return true;
-}
-
-void FixConsoleSize()
-{
-	HWND consoleWindow = GetConsoleWindow();
-	SetWindowLongPtr(consoleWindow, GWL_STYLE, GetWindowLong(consoleWindow, GWL_STYLE) & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX & ~WS_VSCROLL & ~WS_HSCROLL);
-}
-
-bool SetConsoleBuffer()
-{
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	if (hOut == INVALID_HANDLE_VALUE)
-	{
-		return false;
-	}
-
-	CONSOLE_SCREEN_BUFFER_INFOEX bufferInfo;
-	bufferInfo.cbSize = sizeof(CONSOLE_SCREEN_BUFFER_INFOEX);
-	auto fasd = GetConsoleScreenBufferInfoEx(hOut, &bufferInfo);
-
-	bufferInfo.dwMaximumWindowSize = { CONSOLE_WIDTH, CONSOLE_HEIGHT };
-	bufferInfo.dwSize = { CONSOLE_WIDTH, CONSOLE_HEIGHT };
-	bufferInfo.srWindow = { 0, 0, CONSOLE_HEIGHT - 2, CONSOLE_WIDTH - 2 };
-
-	// Change the console window size:
-	if (!SetConsoleScreenBufferInfoEx(hOut, &bufferInfo))
-	{
-		std::cout << GetLastError() << std::endl;
-		return false;
-	}
-}
 
 void PrintVerticalBorder()
 {
@@ -79,13 +22,13 @@ void PrintVerticalBorder()
 	printf(ESC "(B"); // exit line drawing mode
 }
 
-void PrintHorizontalBorder(COORD const Size, bool fIsTop)
+void PrintHorizontalBorder(COORD const size, bool fIsTop)
 {
 	printf(ESC "(0"); // Enter Line drawing mode
 	printf(CSI "104;93m"); // Make the border bright yellow on bright blue
 	printf(fIsTop ? "l" : "m"); // print left corner 
 
-	for (int i = 1; i < Size.X - 1; i++)
+	for (int i = 1; i < size.X - 1; i++)
 		printf("q"); // in line drawing mode, \x71 -> \u2500 "HORIZONTAL SCAN LINE-5"
 
 	printf(fIsTop ? "k" : "j"); // print right corner
@@ -93,19 +36,11 @@ void PrintHorizontalBorder(COORD const Size, bool fIsTop)
 	printf(ESC "(B"); // exit line drawing mode
 }
 
-void PrintStatusLine(const char* const pszMessage, COORD const Size)
+void PrintStatusLine(const char* const pszMessage, COORD const size)
 {
-	printf(CSI "%d;1H", Size.Y);
+	printf(CSI "%d;1H", size.Y);
 	printf(CSI "K"); // clear the line
 	printf(pszMessage);
-}
-
-bool SetupConsole()
-{
-	bool fSuccess = EnableVTMode();
-	FixConsoleSize();
-	fSuccess = SetConsoleBuffer();
-	return fSuccess;
 }
 
 int __cdecl wmain(int argc, WCHAR* argv[])
@@ -113,24 +48,37 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	argc; // unused
 	argv; // unused
 	//First, enable VT mode
-	bool fSuccess = SetupConsole();
+
+	int consoleWidth = CONSOLE_WIDTH;
+	int consoleHeight = CONSOLE_HEIGHT;
+	if (argc == 3)
+	{
+		try {
+			int width = std::stoi(argv[1]);
+			int height = std::stoi(argv[2]);
+			consoleWidth = width;
+			consoleHeight = height;
+		}
+		catch (std::exception const& e) {
+			std::cout << "Argument type invalid\n";
+			return -1;
+		}
+	}
+	auto console = Console(CONSOLE_WIDTH, CONSOLE_HEIGHT);
+	bool fSuccess = console.SetupConsole();
 	if (!fSuccess)
 	{
 		printf("Unable to enter VT processing mode. Quitting.\n");
 		return -1;
 	}
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	HANDLE hOut = console.GetConsoleHandle();
 	if (hOut == INVALID_HANDLE_VALUE)
 	{
 		printf("Couldn't get the console handle. Quitting.\n");
 		return -1;
 	}
 
-	CONSOLE_SCREEN_BUFFER_INFO ScreenBufferInfo;
-	GetConsoleScreenBufferInfo(hOut, &ScreenBufferInfo);
-	COORD Size;
-	Size.X = ScreenBufferInfo.srWindow.Right - ScreenBufferInfo.srWindow.Left + 1;
-	Size.Y = ScreenBufferInfo.srWindow.Bottom - ScreenBufferInfo.srWindow.Top + 1;
+	auto size = console.GetConsoleWindowSize();
 
 	// Enter the alternate buffer
 	printf(CSI "?1049h");
@@ -148,8 +96,8 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	printf(ESC "H"); // set a tab stop
 
 	// Set scrolling margins to 3, h-2
-	printf(CSI "3;%dr", Size.Y - 2);
-	int iNumLines = Size.Y - 4;
+	printf(CSI "3;%dr", size.Y - 2);
+	int iNumLines = size.Y - 4;
 
 	printf(CSI "1;1H");
 	printf(CSI "102;30m");
@@ -158,11 +106,11 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 
 	// Print a top border - Yellow
 	printf(CSI "2;1H");
-	PrintHorizontalBorder(Size, true);
+	PrintHorizontalBorder(size, true);
 
 	// // Print a bottom border
-	printf(CSI "%d;1H", Size.Y - 1);
-	PrintHorizontalBorder(Size, false);
+	printf(CSI "%d;1H", size.Y - 1);
+	PrintHorizontalBorder(size, false);
 
 	wchar_t wch;
 
@@ -177,7 +125,7 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 
 	}
 
-	PrintStatusLine("Press any key to see text printed between tab stops.", Size);
+	PrintStatusLine("Press any key to see text printed between tab stops.", size);
 	wch = _getwch();
 
 	// Fill columns with output
@@ -196,7 +144,7 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 			printf("\t"); // advance to next tab stop, (on the next line)
 	}
 
-	PrintStatusLine("Press any key to demonstrate scroll margins", Size);
+	PrintStatusLine("Press any key to demonstrate scroll margins", size);
 	wch = _getwch();
 
 	printf(CSI "3;1H");
@@ -218,7 +166,7 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 		}
 	}
 
-	PrintStatusLine("Press any key to exit", Size);
+	PrintStatusLine("Press any key to exit", size);
 	wch = _getwch();
 
 	// Exit the alternate buffer
