@@ -5,6 +5,7 @@
 
 // System headers
 #include <windows.h>
+#include <iostream>
 
 // Standard library C-style
 #include <wchar.h>
@@ -13,8 +14,8 @@
 
 #define ESC "\x1b"
 #define CSI "\x1b["
-#define CONSOLE_WIDTH 150
-#define CONSOLE_HEIGHT 100
+#define CONSOLE_WIDTH 120
+#define CONSOLE_HEIGHT 40
 
 bool EnableVTMode()
 {
@@ -52,11 +53,19 @@ bool SetConsoleBuffer()
 	{
 		return false;
 	}
-	SMALL_RECT windowSize = { 0, 0, CONSOLE_WIDTH - 1, CONSOLE_HEIGHT - 1 };
+
+	CONSOLE_SCREEN_BUFFER_INFOEX bufferInfo;
+	bufferInfo.cbSize = sizeof(CONSOLE_SCREEN_BUFFER_INFOEX);
+	auto fasd = GetConsoleScreenBufferInfoEx(hOut, &bufferInfo);
+
+	bufferInfo.dwMaximumWindowSize = { CONSOLE_WIDTH, CONSOLE_HEIGHT };
+	bufferInfo.dwSize = { CONSOLE_WIDTH, CONSOLE_HEIGHT };
+	bufferInfo.srWindow = { 0, 0, CONSOLE_HEIGHT - 2, CONSOLE_WIDTH - 2 };
 
 	// Change the console window size:
-	if (!SetConsoleWindowInfo(hOut, TRUE, &windowSize))
+	if (!SetConsoleScreenBufferInfoEx(hOut, &bufferInfo))
 	{
+		std::cout << GetLastError() << std::endl;
 		return false;
 	}
 }
