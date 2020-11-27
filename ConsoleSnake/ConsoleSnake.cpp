@@ -170,6 +170,8 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	//PrintStatusLine("Press any key to exit", size);
 	//wch = _getwch();
 
+	auto snakeLen = 20;
+	int newLineCount = 0;
 	while (true)
 	{
 		auto cursor = console.GetConsoleCursorPosition();
@@ -181,10 +183,10 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 		std::cout << "@";
 		
 		auto t = clock();
-		while (difftime(clock(), t) < 1000.) {}
+		while (difftime(clock(), t) < 50) {}
 		std::cout << ESC "8";
-		std::cout << CSI "1X";
-		std::cout << ESC "C";
+		std::cout << CSI + snakeLen + "X";
+		std::cout << ESC "C";	
 	}
 
 	// Exit the alternate buffer

@@ -141,12 +141,15 @@
   <ItemGroup>
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConsoleSnake.cpp" />
+    <ClCompile Include="Snake.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Console.h" />
+    <ClInclude Include="Direction.h" />
+    <ClInclude Include="Snake.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
