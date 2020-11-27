@@ -6,6 +6,7 @@
 #include <wchar.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctime>
 #include "Console.h"
 
 #define ESC "\x1b"
@@ -80,96 +81,113 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 
 	auto size = console.GetConsoleWindowSize();
 
-	// Enter the alternate buffer
-	printf(CSI "?1049h");
+	//// Enter the alternate buffer
+	//printf(CSI "?1049h");
 
-	// Clear screen, tab stops, set, stop at columns 16, 32
-	printf(CSI "1;1H");
-	printf(CSI "2J"); // Clear screen
+	//// Clear screen, tab stops, set, stop at columns 16, 32
+	//printf(CSI "1;1H");
+	//printf(CSI "2J"); // Clear screen
 
-	int iNumTabStops = 4; // (0, 20, 40, width)
-	printf(CSI "3g"); // clear all tab stops
-	printf(CSI "1;20H"); // Move to column 20
-	printf(ESC "H"); // set a tab stop
+	//int iNumTabStops = 4; // (0, 20, 40, width)
+	//printf(CSI "3g"); // clear all tab stops
+	//printf(CSI "1;20H"); // Move to column 20
+	//printf(ESC "H"); // set a tab stop
 
-	printf(CSI "1;40H"); // Move to column 40
-	printf(ESC "H"); // set a tab stop
+	//printf(CSI "1;40H"); // Move to column 40
+	//printf(ESC "H"); // set a tab stop
 
-	// Set scrolling margins to 3, h-2
-	printf(CSI "3;%dr", size.Y - 2);
-	int iNumLines = size.Y - 4;
+	//// Set scrolling margins to 3, h-2
+	//printf(CSI "3;%dr", size.Y - 2);
+	//int iNumLines = size.Y - 4;
 
-	printf(CSI "1;1H");
-	printf(CSI "102;30m");
-	printf("Windows 10 Anniversary Update - VT Example");
-	printf(CSI "0m");
+	//printf(CSI "1;1H");
+	//printf(CSI "102;30m");
+	//printf("Windows 10 Anniversary Update - VT Example");
+	//printf(CSI "0m");
 
-	// Print a top border - Yellow
-	printf(CSI "2;1H");
-	PrintHorizontalBorder(size, true);
+	//// Print a top border - Yellow
+	//printf(CSI "2;1H");
+	//PrintHorizontalBorder(size, true);
 
-	// // Print a bottom border
-	printf(CSI "%d;1H", size.Y - 1);
-	PrintHorizontalBorder(size, false);
+	//// // Print a bottom border
+	//printf(CSI "%d;1H", size.Y - 1);
+	//PrintHorizontalBorder(size, false);
 
-	wchar_t wch;
+	//wchar_t wch;
 
-	// draw columns
-	printf(CSI "3;1H");
-	int line = 0;
-	for (line = 0; line < iNumLines * iNumTabStops; line++)
+	//// draw columns
+	//printf(CSI "3;1H");
+	//int line = 0;
+	//for (line = 0; line < iNumLines * iNumTabStops; line++)
+	//{
+	//	PrintVerticalBorder();
+	//	if (line + 1 != iNumLines * iNumTabStops) // don't advance to next line if this is the last line
+	//		printf("\t"); // advance to next tab stop
+
+	//}
+
+	//PrintStatusLine("Press any key to see text printed between tab stops.", size);
+	//wch = _getwch();
+
+	//// Fill columns with output
+	//printf(CSI "3;1H");
+	//for (line = 0; line < iNumLines; line++)
+	//{
+	//	int tab = 0;
+	//	for (tab = 0; tab < iNumTabStops - 1; tab++)
+	//	{
+	//		PrintVerticalBorder();
+	//		printf("line=%d", line);
+	//		printf("\t"); // advance to next tab stop
+	//	}
+	//	PrintVerticalBorder();// print border at right side
+	//	if (line + 1 != iNumLines)
+	//		printf("\t"); // advance to next tab stop, (on the next line)
+	//}
+
+	//PrintStatusLine("Press any key to demonstrate scroll margins", size);
+	//wch = _getwch();
+
+	//printf(CSI "3;1H");
+	//for (line = 0; line < iNumLines * 2; line++)
+	//{
+	//	printf(CSI "K"); // clear the line
+	//	int tab = 0;
+	//	for (tab = 0; tab < iNumTabStops - 1; tab++)
+	//	{
+	//		PrintVerticalBorder();
+	//		printf("line=%d", line);
+	//		printf("\t"); // advance to next tab stop
+	//	}
+	//	PrintVerticalBorder(); // print border at right side
+	//	if (line + 1 != iNumLines * 2)
+	//	{
+	//		printf("\n"); //Advance to next line. If we're at the bottom of the margins, the text will scroll.
+	//		printf("\r"); //return to first col in buffer
+	//	}
+	//}
+
+	//PrintStatusLine("Press any key to exit", size);
+	//wch = _getwch();
+
+	while (true)
 	{
-		PrintVerticalBorder();
-		if (line + 1 != iNumLines * iNumTabStops) // don't advance to next line if this is the last line
-			printf("\t"); // advance to next tab stop
-
-	}
-
-	PrintStatusLine("Press any key to see text printed between tab stops.", size);
-	wch = _getwch();
-
-	// Fill columns with output
-	printf(CSI "3;1H");
-	for (line = 0; line < iNumLines; line++)
-	{
-		int tab = 0;
-		for (tab = 0; tab < iNumTabStops - 1; tab++)
+		auto cursor = console.GetConsoleCursorPosition();
+		if (cursor.X >= size.X - 1)
 		{
-			PrintVerticalBorder();
-			printf("line=%d", line);
-			printf("\t"); // advance to next tab stop
+			std::cout << CSI "0G";
 		}
-		PrintVerticalBorder();// print border at right side
-		if (line + 1 != iNumLines)
-			printf("\t"); // advance to next tab stop, (on the next line)
+		std::cout << ESC "7";
+		std::cout << "@";
+		
+		auto t = clock();
+		while (difftime(clock(), t) < 1000.) {}
+		std::cout << ESC "8";
+		std::cout << CSI "1X";
+		std::cout << ESC "C";
 	}
-
-	PrintStatusLine("Press any key to demonstrate scroll margins", size);
-	wch = _getwch();
-
-	printf(CSI "3;1H");
-	for (line = 0; line < iNumLines * 2; line++)
-	{
-		printf(CSI "K"); // clear the line
-		int tab = 0;
-		for (tab = 0; tab < iNumTabStops - 1; tab++)
-		{
-			PrintVerticalBorder();
-			printf("line=%d", line);
-			printf("\t"); // advance to next tab stop
-		}
-		PrintVerticalBorder(); // print border at right side
-		if (line + 1 != iNumLines * 2)
-		{
-			printf("\n"); //Advance to next line. If we're at the bottom of the margins, the text will scroll.
-			printf("\r"); //return to first col in buffer
-		}
-	}
-
-	PrintStatusLine("Press any key to exit", size);
-	wch = _getwch();
 
 	// Exit the alternate buffer
-	printf(CSI "?1049l");
+	//printf(CSI "?1049l");
 
 }

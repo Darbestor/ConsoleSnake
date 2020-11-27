@@ -9,6 +9,8 @@ public:
 	bool SetupConsole();
 	HANDLE GetConsoleHandle();
 	COORD GetConsoleWindowSize();
+	COORD GetConsoleCursorPosition();
+
 private:
 	bool EnableVTMode();
 	void FixConsoleSize();

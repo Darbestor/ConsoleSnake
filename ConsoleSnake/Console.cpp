@@ -51,7 +51,7 @@ bool Console::EnableVTMode()
 		return false;
 	}
 
-	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING & ~DISABLE_NEWLINE_AUTO_RETURN;
 	if (!SetConsoleMode(consoleHandle, dwMode))
 	{
 		return false;
@@ -79,5 +79,20 @@ bool Console::SetConsoleBuffer()
 	if (!SetConsoleScreenBufferInfoEx(consoleHandle, &bufferInfo))
 	{
 		return false;
+	}
+}
+
+COORD Console::GetConsoleCursorPosition()
+{
+	CONSOLE_SCREEN_BUFFER_INFO cbsi;
+	if (GetConsoleScreenBufferInfo(consoleHandle, &cbsi))
+	{
+		return cbsi.dwCursorPosition;
+	}
+	else
+	{
+		// The function failed. Call GetLastError() for details.
+		COORD invalid = { 0, 0 };
+		return invalid;
 	}
 }
