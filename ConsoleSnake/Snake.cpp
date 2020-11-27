@@ -15,11 +15,38 @@ Snake::~Snake()
 
 void Snake::MoveSnake()
 {
+	auto prevElement = Coordinates(snake.back());
+	MoveHead();
+
+	for (size_t i = 1; i < snake.size(); i++)
+	{
+
+	}
+}
+
+void Snake::MoveHead()
+{
+	Coordinates& lastPositionPtr = snake.back();
+	switch (direction)
+	{
+	case Direction::UP:
+		lastPositionPtr.Y = lastPositionPtr.Y + 1 > screenHeight ? 0 : lastPositionPtr.Y + 1;
+		break;
+	case Direction::DOWN:
+		lastPositionPtr.Y = lastPositionPtr.Y - 1 < 0 ? screenHeight : lastPositionPtr.Y - 1;
+		break;
+	case Direction::LEFT:
+		lastPositionPtr.X = lastPositionPtr.X - 1 < 0 ? screenWidth : lastPositionPtr.X - 1;
+		break;
+	case Direction::RIGHT:
+		lastPositionPtr.X = lastPositionPtr.X + 1 ? 0 : lastPositionPtr.X + 1;
+		break;
+	}
 }
 
 void Snake::AddTail()
 {
-	auto coords = COORD{ 0, 0 };
+	auto coords = Coordinates{ 0, 0 };
 	if (!snake.empty())
 	{
 		int xCoord;
@@ -57,5 +84,4 @@ void Snake::AddTail()
 		coords.Y = yCoord > -1 ? yCoord : screenHeight;
 	}
 	snake.push_back(coords);
-
 }

@@ -1,6 +1,6 @@
 #pragma once
-#include <windows.h>
 #include <vector>
+#include "Coordinates.h"
 
 enum Direction;
 
@@ -12,11 +12,12 @@ public:
 	~Snake();
 
 	void MoveSnake();
+	void MoveHead();
 	void AddTail();
 private:
 	int screenWidth;
 	int screenHeight;
 	Direction direction;
-	std::vector<COORD> snake;
+	std::vector<Coordinates> snake;
 };
 

@@ -148,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Console.h" />
+    <ClInclude Include="Coordinates.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Snake.h" />
   </ItemGroup>
