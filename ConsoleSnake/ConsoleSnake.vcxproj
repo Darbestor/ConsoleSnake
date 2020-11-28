@@ -141,7 +141,6 @@
   <ItemGroup>
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConsoleSnake.cpp" />
-    <ClCompile Include="DirectionKeys.h" />
     <ClCompile Include="Snake.cpp" />
   </ItemGroup>
   <ItemGroup>

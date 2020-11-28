@@ -44,6 +44,47 @@ const Direction& Snake::GetDirection()
 	return direction;
 }
 
+bool Snake::ChangeDirection(KEY_EVENT_RECORD ker)
+{
+	if (!ker.bKeyDown)
+	{
+		switch (ker.wVirtualKeyCode)
+		{
+		case VK_LEFT:
+			if (direction != Direction::RIGHT)
+			{
+				direction = Direction::LEFT;
+				return true;
+			}
+			break;
+		case VK_RIGHT:
+			if (direction != Direction::LEFT)
+			{
+				direction = Direction::RIGHT;
+				return true;
+			}
+			break;
+		case VK_UP:
+			if (direction != Direction::DOWN)
+			{
+				direction = Direction::UP;
+				return true;
+			}
+			break;
+		case VK_DOWN:
+			if (direction != Direction::UP)
+			{
+				direction = Direction::DOWN;
+				return true;
+			}
+			break;
+		default:
+			return false;
+		}
+	}
+	return false;
+}
+
 void Snake::SetHeadLocation(Coordinates &headPos)
 {
 	switch (direction)

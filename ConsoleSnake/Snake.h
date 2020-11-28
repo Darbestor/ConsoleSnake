@@ -2,6 +2,7 @@
 #include <vector>
 #include "Coordinates.h"
 #include "Direction.h"
+#include <windows.h>
 
 class Console;
 
@@ -16,6 +17,7 @@ public:
 	bool MakeMove();
 	void SetDirection(Direction direction);
 	const Direction& GetDirection();
+	bool ChangeDirection(KEY_EVENT_RECORD ker);
 
 private:
 	int screenWidth;
