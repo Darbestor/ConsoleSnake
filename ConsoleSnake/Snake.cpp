@@ -17,7 +17,7 @@ Snake::~Snake()
 {
 }
 
-void Snake::MoveSnake()
+bool Snake::MakeMove()
 {
 	Coordinates headPos = Coordinates(snake.front());
 	Coordinates tailPos = Coordinates(snake.back());
@@ -26,9 +26,12 @@ void Snake::MoveSnake()
 	{
 		std::iter_swap(snake.rbegin() + i, snake.rbegin() + i + 1);
 	}
-	MoveHead(headPos);
+	SetHeadLocation(headPos);
+	if (!CanMove(headPos))
+		return false;
 	console->DrawChar(snake.front());
 	console->RemoveChar(tailPos);
+	return true;
 }
 
 void Snake::SetDirection(Direction direction)
@@ -36,30 +39,45 @@ void Snake::SetDirection(Direction direction)
 	this->direction = direction;
 }
 
-void Snake::MoveHead(Coordinates &headPos)
+const Direction& Snake::GetDirection()
+{
+	return direction;
+}
+
+void Snake::SetHeadLocation(Coordinates &headPos)
 {
 	switch (direction)
 	{
 	case Direction::UP:
-		headPos.Y = headPos.Y - 1 < 0 ? screenHeight : headPos.Y - 1;
+		headPos.Y = headPos.Y - 1 < 1 ? screenHeight : headPos.Y - 1;
 		break;
 	case Direction::DOWN:
-		headPos.Y = headPos.Y + 1 > screenHeight ? 0 : headPos.Y + 1;
+		headPos.Y = headPos.Y + 1 > screenHeight ? 1 : headPos.Y + 1;
 		break;
 	case Direction::LEFT:
-		headPos.X = headPos.X - 1 < 0 ? screenWidth : headPos.X - 1;
+		headPos.X = headPos.X - 1 < 1 ? screenWidth : headPos.X - 1;
 		break;
 	case Direction::RIGHT:
-		headPos.X = headPos.X + 1  > screenWidth ? 0 : headPos.X + 1;
+		headPos.X = headPos.X + 1  > screenWidth ? 1 : headPos.X + 1;
 		break;
 	}
 	snake[0].X = headPos.X;
 	snake[0].Y = headPos.Y;
 }
 
+bool Snake::CanMove(Coordinates& newPos)
+{
+	wchar_t ch = console->GetCharacterOnPositon(newPos);
+	if (ch == '@')
+	{
+		return false;
+	}
+	return true;
+}
+
 void Snake::AddTail()
 {
-	auto coords = Coordinates{ 0, 0 };
+	auto coords = Coordinates{ 1, 1 };
 	if (!snake.empty())
 	{
 		int xCoord;
@@ -93,8 +111,8 @@ void Snake::AddTail()
 			xCoord = lastElement.X + (lastElement.X - prevElement.X);
 			yCoord = lastElement.Y + (lastElement.Y - prevElement.Y);
 		}
-		coords.X = xCoord > -1 ? xCoord : screenWidth;
-		coords.Y = yCoord > -1 ? yCoord : screenHeight;
+		coords.X = xCoord > 0 ? xCoord : screenWidth;
+		coords.Y = yCoord > 0 ? yCoord : screenHeight;
 	}
 	snake.push_back(coords);
 }

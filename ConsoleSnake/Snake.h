@@ -13,8 +13,10 @@ public:
 	~Snake();
 
 	void AddTail();
-	void MoveSnake();
+	bool MakeMove();
 	void SetDirection(Direction direction);
+	const Direction& GetDirection();
+
 private:
 	int screenWidth;
 	int screenHeight;
@@ -22,6 +24,7 @@ private:
 	std::vector<Coordinates> snake;
 	Console *console;
 	
-	void MoveHead(Coordinates &headPos);
+	void SetHeadLocation(Coordinates &headPos);
+	bool CanMove(Coordinates &headPos);
 };
 

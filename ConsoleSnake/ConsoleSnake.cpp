@@ -55,26 +55,46 @@ void PrintStatusLine(const char* const pszMessage, COORD const size)
 }
 
 
-VOID KeyEventProc(KEY_EVENT_RECORD ker, Snake &snake)
+bool ChangeDirection(KEY_EVENT_RECORD ker, Snake &snake)
 {
 	if (!ker.bKeyDown)
 	{
+		auto currentDirection = snake.GetDirection();
 		switch (ker.wVirtualKeyCode)
 		{
 		case VK_LEFT:
-			snake.SetDirection(Direction::LEFT);
+			if (currentDirection != Direction::RIGHT)
+			{
+				snake.SetDirection(Direction::LEFT);
+				return true;
+			}
 			break;
 		case VK_RIGHT:
-			snake.SetDirection(Direction::RIGHT);
+			if (currentDirection != Direction::LEFT)
+			{
+				snake.SetDirection(Direction::RIGHT);
+				return true;
+			}
 			break;
 		case VK_UP:
-			snake.SetDirection(Direction::UP);
+			if (currentDirection != Direction::DOWN)
+			{
+				snake.SetDirection(Direction::UP);
+				return true;
+			}
 			break;
 		case VK_DOWN:
-			snake.SetDirection(Direction::DOWN);
+			if (currentDirection != Direction::UP)
+			{
+				snake.SetDirection(Direction::DOWN);
+				return true;
+			}
 			break;
+		default:
+			return false;
 		}
 	}
+	return false;
 }
 
 void HandleInput(HANDLE& handle, Snake& snake)
@@ -99,7 +119,8 @@ void HandleInput(HANDLE& handle, Snake& snake)
 			switch (irInBuf[i].EventType)
 			{
 			case KEY_EVENT: // keyboard input
-				KeyEventProc(irInBuf[i].Event.KeyEvent, snake);
+				if (ChangeDirection(irInBuf[i].Event.KeyEvent, snake))
+					return;
 				break;
 			}
 		}
@@ -243,10 +264,14 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	while (true)
 	{
 		HandleInput(inHandle, snake);
-		snake.MoveSnake();
+		if (!snake.MakeMove())
+		{
+			std::cout << "You lost!";
+			break;
+		}
 
 		auto t = clock();
-		while (difftime(clock(), t) < 500) {}
+		while (difftime(clock(), t) < 250) {}
 		//std::cout << CSI "2J";
 		i++;
 		if (i % 10 == 0)

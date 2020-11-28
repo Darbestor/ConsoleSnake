@@ -120,6 +120,26 @@ COORD Console::GetConsoleCursorPosition()
 	}
 }
 
+
+wchar_t Console::GetCharacterOnPositon(Coordinates& position)
+{
+	std::cout << CSI + std::to_string(position.Y) + ";" + std::to_string(position.X) + "H";
+	CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+	GetConsoleScreenBufferInfo(handle, &csbiInfo);
+	COORD pos = csbiInfo.dwCursorPosition;; //set pos to current cursor location
+	TCHAR strFromConsole[1];    //need space to only one char
+	DWORD dwChars;
+	ReadConsoleOutputCharacter(
+		handle,
+		strFromConsole, // Buffer where store symbols
+		1, // Read 1 char to strFormConsole
+		pos, // Read from current cursor position
+		&dwChars); // How many symbols stored
+
+	wchar_t c = strFromConsole[0];
+	return c;
+}
+
 void Console::DrawChar(const Coordinates &cursorPosition)
 {
 	std::cout << CSI + std::to_string(cursorPosition.Y) + ";" + std::to_string(cursorPosition.X) + "H";

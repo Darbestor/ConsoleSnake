@@ -12,8 +12,8 @@ public:
 	HANDLE GetConsoleInputHandle();
 	COORD GetConsoleWindowSize();
 	COORD GetConsoleCursorPosition();
+	wchar_t GetCharacterOnPositon(Coordinates &position);
 	void DrawChar(const Coordinates &cursorPosition);
-
 	void RemoveChar(const Coordinates& cursorPosition);
 
 private:
