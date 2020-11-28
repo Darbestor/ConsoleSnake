@@ -10,6 +10,7 @@ public:
 	HANDLE GetConsoleHandle();
 	COORD GetConsoleWindowSize();
 	COORD GetConsoleCursorPosition();
+	void DrawChar(COORD cursorPosition);
 
 private:
 	bool EnableVTMode();

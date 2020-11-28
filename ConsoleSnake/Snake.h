@@ -1,8 +1,7 @@
 #pragma once
 #include <vector>
 #include "Coordinates.h"
-
-enum Direction;
+#include "Direction.h"
 
 class Snake
 {
@@ -11,13 +10,15 @@ public:
 
 	~Snake();
 
-	void MoveSnake();
-	void MoveHead();
 	void AddTail();
+	void MoveSnake();
 private:
 	int screenWidth;
 	int screenHeight;
 	Direction direction;
 	std::vector<Coordinates> snake;
+	
+	void MoveHead();
+	void DrawChar();
 };
 

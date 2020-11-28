@@ -1,5 +1,6 @@
 #include "Snake.h"
-#include "Direction.h"
+#include <iostream>
+#include "Console.h"
 
 Snake::Snake(int screenWidth, int screenHeight) :
 	screenWidth(screenWidth - 1),
@@ -23,27 +24,37 @@ void Snake::MoveSnake()
 		currentElement = &(*it);
 		*it = *prevElement;
 		prevElement = currentElement;
+		DrawChar();
 	}
+	delete prevElement;
+}
+
+void Snake::DrawChar()
+{
+	std::cout << "@";
 }
 
 void Snake::MoveHead()
 {
 	Coordinates& lastPositionPtr = snake.back();
+	Coordinates* newHeadLocation = new Coordinates{ lastPositionPtr.X, lastPositionPtr.Y};
 	switch (direction)
 	{
 	case Direction::UP:
-		lastPositionPtr.Y = lastPositionPtr.Y + 1 > screenHeight ? 0 : lastPositionPtr.Y + 1;
+		newHeadLocation->Y = lastPositionPtr.Y + 1 > screenHeight ? 0 : lastPositionPtr.Y + 1;
 		break;
 	case Direction::DOWN:
-		lastPositionPtr.Y = lastPositionPtr.Y - 1 < 0 ? screenHeight : lastPositionPtr.Y - 1;
+		newHeadLocation->Y = lastPositionPtr.Y - 1 < 0 ? screenHeight : lastPositionPtr.Y - 1;
 		break;
 	case Direction::LEFT:
-		lastPositionPtr.X = lastPositionPtr.X - 1 < 0 ? screenWidth : lastPositionPtr.X - 1;
+		newHeadLocation->X = lastPositionPtr.X - 1 < 0 ? screenWidth : lastPositionPtr.X - 1;
 		break;
 	case Direction::RIGHT:
-		lastPositionPtr.X = lastPositionPtr.X + 1 ? 0 : lastPositionPtr.X + 1;
+		newHeadLocation->X = lastPositionPtr.X + 1  > screenWidth ? 0 : lastPositionPtr.X + 1;
 		break;
 	}
+	snake[snake.size() - 1] = *newHeadLocation;
+	DrawChar();
 }
 
 void Snake::AddTail()

@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <ctime>
 #include "Console.h"
+#include "Snake.h"
 
 #define ESC "\x1b"
 #define CSI "\x1b["
@@ -80,7 +81,7 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	}
 
 	auto size = console.GetConsoleWindowSize();
-
+	auto snake = Snake(size.X, size.Y);
 	//// Enter the alternate buffer
 	//printf(CSI "?1049h");
 
@@ -170,22 +171,15 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	//PrintStatusLine("Press any key to exit", size);
 	//wch = _getwch();
 
-	auto snakeLen = 20;
-	int newLineCount = 0;
 	while (true)
 	{
-		auto cursor = console.GetConsoleCursorPosition();
-		if (cursor.X >= size.X - 1)
-		{
-			std::cout << CSI "0G";
-		}
 		std::cout << ESC "7";
-		std::cout << "@";
+		snake.MoveSnake();
 		
 		auto t = clock();
 		while (difftime(clock(), t) < 50) {}
 		std::cout << ESC "8";
-		std::cout << CSI + snakeLen + "X";
+		std::cout << CSI "1X";
 		std::cout << ESC "C";	
 	}
 

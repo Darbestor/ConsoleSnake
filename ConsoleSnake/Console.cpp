@@ -3,6 +3,8 @@
 //
 #include "Console.h"
 #define DEFINE_CONSOLEV2_PROPERTIES
+#include <iostream>
+#include <string>
 
 #define ESC "\x1b"
 #define CSI "\x1b["
@@ -95,4 +97,9 @@ COORD Console::GetConsoleCursorPosition()
 		COORD invalid = { 0, 0 };
 		return invalid;
 	}
+}
+
+void Console::DrawChar(COORD cursorPosition)
+{
+	std::cout << CSI + std::to_string(cursorPosition.Y) + ";" + std::to_string(cursorPosition.X) + "H";
 }
