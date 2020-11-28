@@ -14,6 +14,7 @@ public:
 
 	void AddTail();
 	void MoveSnake();
+	void SetDirection(Direction direction);
 private:
 	int screenWidth;
 	int screenHeight;

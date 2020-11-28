@@ -24,6 +24,14 @@ void PrintVerticalBorder()
 	printf(ESC "(B"); // exit line drawing mode
 }
 
+//static struct DirectionKeys
+//{
+//	static CONST WCHAR UP{ L'sadfsd' };
+//	static constexpr WCHAR DOWN[] = CSI "B";
+//	static constexpr CHAR LEFT[] = CSI "D";
+//	static constexpr char RIGHT[] = CSI "C";
+//};
+
 void PrintHorizontalBorder(COORD const size, bool fIsTop)
 {
 	printf(ESC "(0"); // Enter Line drawing mode
@@ -46,27 +54,54 @@ void PrintStatusLine(const char* const pszMessage, COORD const size)
 }
 
 
-VOID KeyEventProc(TCHAR& key, Snake& snake)
+VOID KeyEventProc(KEY_EVENT_RECORD ker, Snake &snake)
 {
-	auto keyasd = key;
-	return;
+	if (!ker.bKeyDown)
+	{
+		switch (ker.wVirtualKeyCode)
+		{
+		case VK_LEFT:
+			snake.SetDirection(Direction::LEFT);
+			break;
+		case VK_RIGHT:
+			snake.SetDirection(Direction::RIGHT);
+			break;
+		case VK_UP:
+			snake.SetDirection(Direction::UP);
+			break;
+		case VK_DOWN:
+			snake.SetDirection(Direction::DOWN);
+			break;
+		}
+	}
 }
 
-void HandleInput(HANDLE &handle, Snake &snake)
+void HandleInput(HANDLE& handle, Snake& snake)
 {
 	DWORD numberOfEvents;
-	TCHAR* lpBuffer = nullptr;
-	DWORD numberRead;
-	if (GetNumberOfConsoleInputEvents(handle, &numberOfEvents))
+	DWORD cNumRead;
+	PINPUT_RECORD irInBuf;
+	GetNumberOfConsoleInputEvents(handle, &numberOfEvents);
+	if (numberOfEvents > 0)
 	{
-		lpBuffer = new TCHAR[numberOfEvents];
-		if (!ReadConsole(handle, lpBuffer, numberOfEvents, &numberRead, nullptr))
-			return;
-		for (size_t i = 0; i < numberRead; i++)
+		irInBuf = new INPUT_RECORD[numberOfEvents];
+		ReadConsoleInput(
+			handle,			// input buffer handle
+			irInBuf,		// buffer to read into
+			numberOfEvents,	// size of read buffer
+			&cNumRead);		// number of records read
+
+		// Dispatch the events to the appropriate handler.
+		for (INT i = 0; i < cNumRead; i++)
 		{
-			KeyEventProc(lpBuffer[i], snake);
+
+			switch (irInBuf[i].EventType)
+			{
+			case KEY_EVENT: // keyboard input
+				KeyEventProc(irInBuf[i].Event.KeyEvent, snake);
+				break;
+			}
 		}
-		delete[] lpBuffer;
 	}
 }
 

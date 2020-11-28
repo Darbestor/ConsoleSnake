@@ -31,16 +31,21 @@ void Snake::MoveSnake()
 	delete prevElement;
 }
 
+void Snake::SetDirection(Direction direction)
+{
+	this->direction = direction;
+}
+
 void Snake::MoveHead()
 {
 	Coordinates& lastPositionPtr = snake.back();
 	switch (direction)
 	{
 	case Direction::UP:
-		lastPositionPtr.Y = lastPositionPtr.Y + 1 > screenHeight ? 0 : lastPositionPtr.Y + 1;
+		lastPositionPtr.Y = lastPositionPtr.Y - 1 < 0 ? screenHeight : lastPositionPtr.Y - 1;
 		break;
 	case Direction::DOWN:
-		lastPositionPtr.Y = lastPositionPtr.Y - 1 < 0 ? screenHeight : lastPositionPtr.Y - 1;
+		lastPositionPtr.Y = lastPositionPtr.Y + 1 > screenHeight ? 0 : lastPositionPtr.Y + 1;
 		break;
 	case Direction::LEFT:
 		lastPositionPtr.X = lastPositionPtr.X - 1 < 0 ? screenWidth : lastPositionPtr.X - 1;

@@ -74,7 +74,7 @@ bool Console::EnableVTMode()
 		return false;
 	}
 
-	fdwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_VIRTUAL_TERMINAL_INPUT;
+	fdwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_VIRTUAL_TERMINAL_INPUT & ~ENABLE_MOUSE_INPUT & ~ENABLE_INSERT_MODE & ~ENABLE_WINDOW_INPUT;
 	if (!SetConsoleMode(inHandle, fdwMode))
 	{
 		return false;
