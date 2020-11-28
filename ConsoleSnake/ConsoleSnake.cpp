@@ -9,6 +9,7 @@
 #include <ctime>
 #include "Console.h"
 #include "Snake.h"
+#include <algorithm>
 
 #define ESC "\x1b"
 #define CSI "\x1b["
@@ -236,18 +237,25 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 
 	//PrintStatusLine("Press any key to exit", size);
 	//wch = _getwch();
+
 	std::cout << CSI "?1h";
+	int i = 0;
 	while (true)
 	{
 		HandleInput(inHandle, snake);
 		snake.MoveSnake();
 
 		auto t = clock();
-		while (difftime(clock(), t) < 50) {}
-		std::cout << CSI "2J";
+		while (difftime(clock(), t) < 500) {}
+		//std::cout << CSI "2J";
+		i++;
+		if (i % 10 == 0)
+		{
+			snake.AddTail();
+		}
 	}
 
 	// Exit the alternate buffer
-	//printf(CSI "?1049l");
+	printf(CSI "?1049l");
 
 }

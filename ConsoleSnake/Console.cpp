@@ -125,3 +125,9 @@ void Console::DrawChar(const Coordinates &cursorPosition)
 	std::cout << CSI + std::to_string(cursorPosition.Y) + ";" + std::to_string(cursorPosition.X) + "H";
 	std::cout << "@";
 }
+
+void Console::RemoveChar(const Coordinates& cursorPosition)
+{
+	std::cout << CSI + std::to_string(cursorPosition.Y) + ";" + std::to_string(cursorPosition.X) + "H";
+	std::cout << CSI "1X";
+}

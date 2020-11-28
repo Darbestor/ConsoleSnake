@@ -10,6 +10,7 @@ Snake::Snake(Console* console) :
 	screenHeight = size.Y - 1;
 	screenWidth = size.X - 1;
 	AddTail();
+	AddTail();
 }
 
 Snake::~Snake()
@@ -18,17 +19,16 @@ Snake::~Snake()
 
 void Snake::MoveSnake()
 {
-	Coordinates *prevElement = new Coordinates(snake[snake.size() - 1]);
-	Coordinates *currentElement = nullptr;
-	MoveHead();
+	Coordinates headPos = Coordinates(snake.front());
+	Coordinates tailPos = Coordinates(snake.back());
 
-	for (auto it = std::begin(snake) + 1; it != std::end(snake); ++it) {
-		currentElement = &(*it);
-		*it = *prevElement;
-		console->DrawChar(*it);
-		prevElement = currentElement;
+	for (size_t i = 0; i < snake.size() - 1; i++)
+	{
+		std::iter_swap(snake.rbegin() + i, snake.rbegin() + i + 1);
 	}
-	delete prevElement;
+	MoveHead(headPos);
+	console->DrawChar(snake.front());
+	console->RemoveChar(tailPos);
 }
 
 void Snake::SetDirection(Direction direction)
@@ -36,25 +36,25 @@ void Snake::SetDirection(Direction direction)
 	this->direction = direction;
 }
 
-void Snake::MoveHead()
+void Snake::MoveHead(Coordinates &headPos)
 {
-	Coordinates& lastPositionPtr = snake.back();
 	switch (direction)
 	{
 	case Direction::UP:
-		lastPositionPtr.Y = lastPositionPtr.Y - 1 < 0 ? screenHeight : lastPositionPtr.Y - 1;
+		headPos.Y = headPos.Y - 1 < 0 ? screenHeight : headPos.Y - 1;
 		break;
 	case Direction::DOWN:
-		lastPositionPtr.Y = lastPositionPtr.Y + 1 > screenHeight ? 0 : lastPositionPtr.Y + 1;
+		headPos.Y = headPos.Y + 1 > screenHeight ? 0 : headPos.Y + 1;
 		break;
 	case Direction::LEFT:
-		lastPositionPtr.X = lastPositionPtr.X - 1 < 0 ? screenWidth : lastPositionPtr.X - 1;
+		headPos.X = headPos.X - 1 < 0 ? screenWidth : headPos.X - 1;
 		break;
 	case Direction::RIGHT:
-		lastPositionPtr.X = lastPositionPtr.X + 1  > screenWidth ? 0 : lastPositionPtr.X + 1;
+		headPos.X = headPos.X + 1  > screenWidth ? 0 : headPos.X + 1;
 		break;
 	}
-	console->DrawChar(snake.back());
+	snake[0].X = headPos.X;
+	snake[0].Y = headPos.Y;
 }
 
 void Snake::AddTail()
@@ -70,11 +70,11 @@ void Snake::AddTail()
 			switch (direction)
 			{
 			case Direction::UP:
-				yCoord = lastElement.Y + 1;
+				yCoord = lastElement.Y - 1;
 				xCoord = lastElement.X;
 				break;
 			case Direction::DOWN:
-				yCoord = lastElement.Y - 1;
+				yCoord = lastElement.Y + 1;
 				xCoord = lastElement.X;
 				break;
 			case Direction::LEFT:

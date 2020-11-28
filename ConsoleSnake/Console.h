@@ -14,6 +14,8 @@ public:
 	COORD GetConsoleCursorPosition();
 	void DrawChar(const Coordinates &cursorPosition);
 
+	void RemoveChar(const Coordinates& cursorPosition);
+
 private:
 	bool EnableVTMode();
 	void FixConsoleSize();

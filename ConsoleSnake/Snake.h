@@ -22,6 +22,6 @@ private:
 	std::vector<Coordinates> snake;
 	Console *console;
 	
-	void MoveHead();
+	void MoveHead(Coordinates &headPos);
 };
 
