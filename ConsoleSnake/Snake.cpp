@@ -15,12 +15,14 @@ Snake::~Snake()
 
 void Snake::MoveSnake()
 {
-	auto prevElement = Coordinates(snake.back());
+	Coordinates *prevElement = &(snake.back());
+	Coordinates *currentElement = nullptr;
 	MoveHead();
 
-	for (size_t i = 1; i < snake.size(); i++)
-	{
-
+	for (auto it = std::begin(snake) + 1; it != std::end(snake); ++it) {
+		currentElement = &(*it);
+		*it = *prevElement;
+		prevElement = currentElement;
 	}
 }
 
