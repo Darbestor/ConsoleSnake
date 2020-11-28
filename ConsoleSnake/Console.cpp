@@ -102,4 +102,5 @@ COORD Console::GetConsoleCursorPosition()
 void Console::DrawChar(const Coordinates &cursorPosition)
 {
 	std::cout << CSI + std::to_string(cursorPosition.Y) + ";" + std::to_string(cursorPosition.X) + "H";
+	std::cout << "@";
 }

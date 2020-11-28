@@ -18,7 +18,7 @@ Snake::~Snake()
 
 void Snake::MoveSnake()
 {
-	Coordinates *prevElement = &(snake.back());
+	Coordinates *prevElement = new Coordinates(snake[snake.size() - 1]);
 	Coordinates *currentElement = nullptr;
 	MoveHead();
 
@@ -34,23 +34,21 @@ void Snake::MoveSnake()
 void Snake::MoveHead()
 {
 	Coordinates& lastPositionPtr = snake.back();
-	Coordinates* newHeadLocation = new Coordinates{ lastPositionPtr.X, lastPositionPtr.Y};
 	switch (direction)
 	{
 	case Direction::UP:
-		newHeadLocation->Y = lastPositionPtr.Y + 1 > screenHeight ? 0 : lastPositionPtr.Y + 1;
+		lastPositionPtr.Y = lastPositionPtr.Y + 1 > screenHeight ? 0 : lastPositionPtr.Y + 1;
 		break;
 	case Direction::DOWN:
-		newHeadLocation->Y = lastPositionPtr.Y - 1 < 0 ? screenHeight : lastPositionPtr.Y - 1;
+		lastPositionPtr.Y = lastPositionPtr.Y - 1 < 0 ? screenHeight : lastPositionPtr.Y - 1;
 		break;
 	case Direction::LEFT:
-		newHeadLocation->X = lastPositionPtr.X - 1 < 0 ? screenWidth : lastPositionPtr.X - 1;
+		lastPositionPtr.X = lastPositionPtr.X - 1 < 0 ? screenWidth : lastPositionPtr.X - 1;
 		break;
 	case Direction::RIGHT:
-		newHeadLocation->X = lastPositionPtr.X + 1  > screenWidth ? 0 : lastPositionPtr.X + 1;
+		lastPositionPtr.X = lastPositionPtr.X + 1  > screenWidth ? 0 : lastPositionPtr.X + 1;
 		break;
 	}
-	snake[snake.size() - 1] = *newHeadLocation;
 	console->DrawChar(snake.back());
 }
 
