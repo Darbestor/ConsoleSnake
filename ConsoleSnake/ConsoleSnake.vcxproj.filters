@@ -15,30 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Console.cpp">
+    <ClCompile Include="src\Console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Snake.cpp">
+    <ClCompile Include="src\ConsoleSnake.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConsoleSnake.cpp">
+    <ClCompile Include="src\Snake.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Console.h">
+    <ClInclude Include="headers\Console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Snake.h">
+    <ClInclude Include="headers\Coordinates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Direction.h">
+    <ClInclude Include="headers\Direction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Coordinates.h">
+    <ClInclude Include="headers\Snake.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
