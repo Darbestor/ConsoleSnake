@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include "Coordinates.h"
 
 class Console
 {
@@ -10,7 +11,7 @@ public:
 	HANDLE GetConsoleHandle();
 	COORD GetConsoleWindowSize();
 	COORD GetConsoleCursorPosition();
-	void DrawChar(COORD cursorPosition);
+	void DrawChar(const Coordinates &cursorPosition);
 
 private:
 	bool EnableVTMode();

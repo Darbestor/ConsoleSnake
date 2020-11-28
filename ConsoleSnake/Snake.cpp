@@ -2,11 +2,13 @@
 #include <iostream>
 #include "Console.h"
 
-Snake::Snake(int screenWidth, int screenHeight) :
-	screenWidth(screenWidth - 1),
-	screenHeight(screenHeight - 1),
-	direction(Direction::RIGHT)
+Snake::Snake(Console* console) :
+	direction(Direction::RIGHT),
+	console(console)
 {
+	auto size = console->GetConsoleWindowSize();
+	screenHeight = size.Y - 1;
+	screenWidth = size.X - 1;
 	AddTail();
 }
 
@@ -23,15 +25,10 @@ void Snake::MoveSnake()
 	for (auto it = std::begin(snake) + 1; it != std::end(snake); ++it) {
 		currentElement = &(*it);
 		*it = *prevElement;
+		console->DrawChar(*it);
 		prevElement = currentElement;
-		DrawChar();
 	}
 	delete prevElement;
-}
-
-void Snake::DrawChar()
-{
-	std::cout << "@";
 }
 
 void Snake::MoveHead()
@@ -54,7 +51,7 @@ void Snake::MoveHead()
 		break;
 	}
 	snake[snake.size() - 1] = *newHeadLocation;
-	DrawChar();
+	console->DrawChar(snake.back());
 }
 
 void Snake::AddTail()

@@ -3,10 +3,12 @@
 #include "Coordinates.h"
 #include "Direction.h"
 
+class Console;
+
 class Snake
 {
 public:
-	Snake(int screenWidth, int screenHeight);
+	Snake(Console* console);
 
 	~Snake();
 
@@ -17,8 +19,8 @@ private:
 	int screenHeight;
 	Direction direction;
 	std::vector<Coordinates> snake;
+	Console *console;
 	
 	void MoveHead();
-	void DrawChar();
 };
 

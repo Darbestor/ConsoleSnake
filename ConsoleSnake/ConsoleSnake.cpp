@@ -81,7 +81,7 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	}
 
 	auto size = console.GetConsoleWindowSize();
-	auto snake = Snake(size.X, size.Y);
+	auto snake = Snake(&console);
 	//// Enter the alternate buffer
 	//printf(CSI "?1049h");
 
