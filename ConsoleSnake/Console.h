@@ -9,6 +9,7 @@ public:
 
 	bool SetupConsole();
 	HANDLE GetConsoleHandle();
+	HANDLE GetConsoleInputHandle();
 	COORD GetConsoleWindowSize();
 	COORD GetConsoleCursorPosition();
 	void DrawChar(const Coordinates &cursorPosition);
@@ -20,6 +21,7 @@ private:
 
 	short windowWidth;
 	short windowHeight;
-	HANDLE consoleHandle;
+	HANDLE handle;
+	HANDLE inHandle;
 };
 

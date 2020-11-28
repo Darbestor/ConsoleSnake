@@ -45,6 +45,31 @@ void PrintStatusLine(const char* const pszMessage, COORD const size)
 	printf(pszMessage);
 }
 
+
+VOID KeyEventProc(TCHAR& key, Snake& snake)
+{
+	auto keyasd = key;
+	return;
+}
+
+void HandleInput(HANDLE &handle, Snake &snake)
+{
+	DWORD numberOfEvents;
+	TCHAR* lpBuffer = nullptr;
+	DWORD numberRead;
+	if (GetNumberOfConsoleInputEvents(handle, &numberOfEvents))
+	{
+		lpBuffer = new TCHAR[numberOfEvents];
+		if (!ReadConsole(handle, lpBuffer, numberOfEvents, &numberRead, nullptr))
+			return;
+		for (size_t i = 0; i < numberRead; i++)
+		{
+			KeyEventProc(lpBuffer[i], snake);
+		}
+		delete[] lpBuffer;
+	}
+}
+
 int __cdecl wmain(int argc, WCHAR* argv[])
 {
 	argc; // unused
@@ -73,10 +98,16 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 		printf("Unable to enter VT processing mode. Quitting.\n");
 		return -1;
 	}
-	HANDLE hOut = console.GetConsoleHandle();
-	if (hOut == INVALID_HANDLE_VALUE)
+	HANDLE handle = console.GetConsoleHandle();
+	if (handle == INVALID_HANDLE_VALUE)
 	{
-		printf("Couldn't get the console handle. Quitting.\n");
+		printf("Couldn't get the console output handle. Quitting.\n");
+		return -1;
+	}
+	HANDLE inHandle = console.GetConsoleInputHandle();
+	if (handle == INVALID_HANDLE_VALUE)
+	{
+		printf("Couldn't get the console output handle. Quitting.\n");
 		return -1;
 	}
 
@@ -170,17 +201,15 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 
 	//PrintStatusLine("Press any key to exit", size);
 	//wch = _getwch();
-
+	std::cout << CSI "?1h";
 	while (true)
 	{
-		std::cout << ESC "7";
+		HandleInput(inHandle, snake);
 		snake.MoveSnake();
-		
+
 		auto t = clock();
 		while (difftime(clock(), t) < 50) {}
-		std::cout << ESC "8";
-		std::cout << CSI "1X";
-		std::cout << ESC "C";	
+		std::cout << CSI "2J";
 	}
 
 	// Exit the alternate buffer
