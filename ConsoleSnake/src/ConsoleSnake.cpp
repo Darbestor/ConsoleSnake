@@ -4,47 +4,18 @@
 
 // Standard library C-style
 #include <wchar.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <ctime>
 #include "Console.h"
 #include "Snake.h"
-#include <algorithm>
 
+// Escape sequences
 #define ESC "\x1b"
 #define CSI "\x1b["
+
 #define CONSOLE_WIDTH 120
 #define CONSOLE_HEIGHT 40
 
-void HandleInput(HANDLE& handle, Snake& snake)
-{
-	DWORD numberOfEvents;
-	DWORD cNumRead;
-	PINPUT_RECORD irInBuf;
-	GetNumberOfConsoleInputEvents(handle, &numberOfEvents);
-	if (numberOfEvents > 0)
-	{
-		irInBuf = new INPUT_RECORD[numberOfEvents];
-		ReadConsoleInput(
-			handle,			// input buffer handle
-			irInBuf,		// buffer to read into
-			numberOfEvents,	// size of read buffer
-			&cNumRead);		// number of records read
-
-		// Dispatch the events to the appropriate handler.
-		for (INT i = 0; i < cNumRead; i++)
-		{
-
-			switch (irInBuf[i].EventType)
-			{
-			case KEY_EVENT: // keyboard input
-				if (snake.ChangeDirection(irInBuf[i].Event.KeyEvent))
-					return;
-				break;
-			}
-		}
-	}
-}
+VOID HandleInput();
 
 int __cdecl wmain(int argc, WCHAR* argv[])
 {
@@ -71,26 +42,19 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 		return -1;
 	}
 	HANDLE handle = console.GetConsoleHandle();
-	if (handle == INVALID_HANDLE_VALUE)
-	{
-		printf("Couldn't get the console output handle. Quitting.\n");
-		return -1;
-	}
 	HANDLE inHandle = console.GetConsoleInputHandle();
-	if (handle == INVALID_HANDLE_VALUE)
-	{
-		printf("Couldn't get the console output handle. Quitting.\n");
-		return -1;
-	}
-
-	auto size = console.GetConsoleWindowSize();
 	auto snake = Snake(&console);
 
+	// Enter alternate buffer
 	std::cout << CSI "?1h";
 	int i = 0;
+	int keyCode;
 	while (true)
 	{
-		HandleInput(inHandle, snake);
+		if (console.CheckKeyReleased(&keyCode))
+		{
+
+		}
 		if (!snake.MakeMove())
 		{
 			std::cout << "You lost!";
