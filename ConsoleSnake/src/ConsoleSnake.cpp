@@ -43,7 +43,8 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	}
 	HANDLE handle = console.GetConsoleHandle();
 	HANDLE inHandle = console.GetConsoleInputHandle();
-	auto snake = Snake(&console);
+	auto screenSize = console.GetConsoleWindowSize();
+	auto snake = Snake(screenSize);
 
 	// Enter alternate buffer
 	std::cout << CSI "?1h";
@@ -55,7 +56,7 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 		{
 
 		}
-		if (!snake.MakeMove())
+		if (!snake.MakeMove(console))
 		{
 			std::cout << "You lost!";
 			break;

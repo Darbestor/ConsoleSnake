@@ -2,13 +2,12 @@
 #include <iostream>
 #include "Console.h"
 
-Snake::Snake(Console* console) :
-	direction(Direction::RIGHT),
-	console(console)
+Snake::Snake(Coordinates &screenSize) :
+	direction(Direction::RIGHT)
 {
 	auto size = console->GetConsoleWindowSize();
-	screenHeight = size.Y - 1;
-	screenWidth = size.X - 1;
+	screenHeight = screenSize.Y - 1;
+	screenWidth = screenSize.X - 1;
 	AddTail();
 	AddTail();
 }
@@ -17,7 +16,7 @@ Snake::~Snake()
 {
 }
 
-bool Snake::MakeMove()
+bool Snake::MakeMove(Console &console)
 {
 	Coordinates headPos = Coordinates(snake.front());
 	Coordinates tailPos = Coordinates(snake.back());
@@ -27,10 +26,10 @@ bool Snake::MakeMove()
 		std::iter_swap(snake.rbegin() + i, snake.rbegin() + i + 1);
 	}
 	SetHeadLocation(headPos);
-	if (!CanMove(headPos))
+	if (!CanMove(headPos, console))
 		return false;
-	console->DrawChar(snake.front());
-	console->RemoveChar(tailPos);
+	console.DrawChar(snake.front());
+	console.RemoveChar(tailPos);
 	return true;
 }
 
@@ -106,9 +105,9 @@ void Snake::SetHeadLocation(Coordinates &headPos)
 	snake[0].Y = headPos.Y;
 }
 
-bool Snake::CanMove(Coordinates& newPos)
+bool Snake::CanMove(Coordinates& newPos, Console &console)
 {
-	wchar_t ch = console->GetCharacterOnPositon(newPos);
+	wchar_t ch = console.GetCharacterOnPositon(newPos);
 	if (ch == '@')
 	{
 		return false;
