@@ -1,14 +1,14 @@
 #include "Snake.h"
 #include <iostream>
 #include "Console.h"
+#include "GameCharacter.h"
+#include "Fruit.h"
 
-Snake::Snake(Console* console) :
-	direction(Direction::RIGHT),
-	console(console)
+Snake::Snake(Coordinates& screenSize) :
+	direction(Direction::RIGHT)
 {
-	auto size = console->GetConsoleWindowSize();
-	screenHeight = size.Y - 1;
-	screenWidth = size.X - 1;
+	screenHeight = screenSize.Y - 1;
+	screenWidth = screenSize.X - 1;
 	AddTail();
 	AddTail();
 }
@@ -17,7 +17,7 @@ Snake::~Snake()
 {
 }
 
-bool Snake::MakeMove()
+bool Snake::MakeMove(Fruit &fruit)
 {
 	Coordinates headPos = Coordinates(snake.front());
 	Coordinates tailPos = Coordinates(snake.back());
@@ -27,10 +27,10 @@ bool Snake::MakeMove()
 		std::iter_swap(snake.rbegin() + i, snake.rbegin() + i + 1);
 	}
 	SetHeadLocation(headPos);
-	if (!CanMove(headPos))
+	if (!ManageMovement(headPos, fruit))
 		return false;
-	console->DrawChar(snake.front());
-	console->RemoveChar(tailPos);
+	Console::DrawChar(snake.front(), GameCharacter::SNAKE);
+	Console::RemoveChar(tailPos);
 	return true;
 }
 
@@ -44,45 +44,36 @@ const Direction& Snake::GetDirection()
 	return direction;
 }
 
-bool Snake::ChangeDirection(KEY_EVENT_RECORD ker)
+void Snake::ChangeDirection(int &keyCode)
 {
-	if (!ker.bKeyDown)
-	{
-		switch (ker.wVirtualKeyCode)
+
+		switch (keyCode)
 		{
 		case VK_LEFT:
 			if (direction != Direction::RIGHT)
 			{
 				direction = Direction::LEFT;
-				return true;
 			}
 			break;
 		case VK_RIGHT:
 			if (direction != Direction::LEFT)
 			{
 				direction = Direction::RIGHT;
-				return true;
 			}
 			break;
 		case VK_UP:
 			if (direction != Direction::DOWN)
 			{
 				direction = Direction::UP;
-				return true;
 			}
 			break;
 		case VK_DOWN:
 			if (direction != Direction::UP)
 			{
 				direction = Direction::DOWN;
-				return true;
 			}
 			break;
-		default:
-			return false;
 		}
-	}
-	return false;
 }
 
 void Snake::SetHeadLocation(Coordinates &headPos)
@@ -106,12 +97,18 @@ void Snake::SetHeadLocation(Coordinates &headPos)
 	snake[0].Y = headPos.Y;
 }
 
-bool Snake::CanMove(Coordinates& newPos)
+bool Snake::ManageMovement(Coordinates& newPos, Fruit& fruit)
 {
-	wchar_t ch = console->GetCharacterOnPositon(newPos);
-	if (ch == '@')
+	wchar_t ch = Console::GetCharacterOnPositon(newPos);
+	if (ch == GameCharacter::SNAKE)
 	{
+		// if gameOver
 		return false;
+	}
+	if (ch == GameCharacter::FRUIT)
+	{
+		fruit.SetSpawned(false);
+		AddTail();
 	}
 	return true;
 }

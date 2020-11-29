@@ -147,14 +147,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Fruit.cpp" />
     <ClCompile Include="src\Console.cpp" />
-    <ClCompile Include="src\ConsoleSnake.cpp" />
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Snake.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="headers\Fruit.h" />
     <ClInclude Include="headers\Console.h" />
     <ClInclude Include="headers\Coordinates.h" />
     <ClInclude Include="headers\Direction.h" />
+    <ClInclude Include="headers\GameCharacter.h" />
     <ClInclude Include="headers\Snake.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -5,25 +5,28 @@
 class Console
 {
 public:
-	Console(short width, short height);
 
-	bool SetupConsole();
-	HANDLE GetConsoleHandle();
-	HANDLE GetConsoleInputHandle();
-	COORD GetConsoleWindowSize();
-	COORD GetConsoleCursorPosition();
-	wchar_t GetCharacterOnPositon(Coordinates &position);
-	void DrawChar(const Coordinates &cursorPosition);
-	void RemoveChar(const Coordinates& cursorPosition);
+	static bool SetupConsole(short width = 0, short height = 0);
+	static const HANDLE GetConsoleHandle();
+	static const HANDLE GetConsoleInputHandle();
+	static Coordinates GetConsoleWindowSize();
+	static Coordinates GetConsoleCursorPosition();
+	static wchar_t GetCharacterOnPositon(Coordinates &position);
+	static void DrawChar(const Coordinates &cursorPosition, const wchar_t& symbol);
+	static void RemoveChar(const Coordinates& cursorPosition);
+	static bool CheckKeyReleased(int *keyCode);
 
 private:
-	bool EnableVTMode();
-	void FixConsoleSize();
-	bool SetConsoleBuffer();
+	// Disallow creating instance
+	Console() {}
 
-	short windowWidth;
-	short windowHeight;
-	HANDLE handle;
-	HANDLE inHandle;
+	static bool EnableVTMode();
+	static void FixConsoleSize();
+	static bool SetConsoleBuffer();
+
+	static short windowWidth;
+	static short windowHeight;
+	static HANDLE handle;
+	static HANDLE inHandle;
 };
 
