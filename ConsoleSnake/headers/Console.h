@@ -12,7 +12,7 @@ public:
 	static Coordinates GetConsoleWindowSize();
 	static Coordinates GetConsoleCursorPosition();
 	static wchar_t GetCharacterOnPositon(Coordinates &position);
-	static void DrawChar(const Coordinates &cursorPosition);
+	static void DrawChar(const Coordinates &cursorPosition, const wchar_t& symbol);
 	static void RemoveChar(const Coordinates& cursorPosition);
 	static bool CheckKeyReleased(int *keyCode);
 

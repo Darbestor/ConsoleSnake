@@ -145,10 +145,10 @@ wchar_t Console::GetCharacterOnPositon(Coordinates& position)
 	return c;
 }
 
-void Console::DrawChar(const Coordinates &cursorPosition)
+void Console::DrawChar(const Coordinates &cursorPosition, const wchar_t &symbol)
 {
 	std::cout << CSI + std::to_string(cursorPosition.Y) + ";" + std::to_string(cursorPosition.X) + "H";
-	std::cout << "@";
+	std::wcout << symbol;
 }
 
 void Console::RemoveChar(const Coordinates& cursorPosition)

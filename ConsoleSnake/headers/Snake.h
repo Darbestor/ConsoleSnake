@@ -26,6 +26,6 @@ private:
 	std::vector<Coordinates> snake;
 	
 	void SetHeadLocation(Coordinates &headPos);
-	bool CanMove(Coordinates &headPos);
+	bool ManageMovement(Coordinates &headPos);
 };
 

@@ -7,6 +7,7 @@
 #include <ctime>
 #include "Console.h"
 #include "Snake.h"
+#include "Fruit.h"
 
 // Escape sequences
 #define ESC "\x1b"
@@ -51,6 +52,7 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	HANDLE inHandle = Console::GetConsoleInputHandle();
 	auto screenSize = Console::GetConsoleWindowSize();
 	auto snake = Snake(screenSize);
+	auto fruit = Fruit();
 
 	// Enter alternate buffer
 	std::cout << CSI "?1h";
@@ -74,7 +76,7 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 		i++;
 		if (i % 10 == 0)
 		{
-			snake.AddTail();
+			fruit.SpawnFruit();
 		}
 	}
 

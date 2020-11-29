@@ -157,6 +157,7 @@
     <ClInclude Include="headers\Console.h" />
     <ClInclude Include="headers\Coordinates.h" />
     <ClInclude Include="headers\Direction.h" />
+    <ClInclude Include="headers\GameCharacter.h" />
     <ClInclude Include="headers\Snake.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

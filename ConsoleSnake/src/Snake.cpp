@@ -1,8 +1,9 @@
 #include "Snake.h"
 #include <iostream>
 #include "Console.h"
+#include "GameCharacter.h"
 
-Snake::Snake(Coordinates &screenSize) :
+Snake::Snake(Coordinates& screenSize) :
 	direction(Direction::RIGHT)
 {
 	screenHeight = screenSize.Y - 1;
@@ -25,9 +26,9 @@ bool Snake::MakeMove()
 		std::iter_swap(snake.rbegin() + i, snake.rbegin() + i + 1);
 	}
 	SetHeadLocation(headPos);
-	if (!CanMove(headPos))
+	if (!ManageMovement(headPos))
 		return false;
-	Console::DrawChar(snake.front());
+	Console::DrawChar(snake.front(), GameCharacter::SNAKE);
 	Console::RemoveChar(tailPos);
 	return true;
 }
@@ -95,12 +96,17 @@ void Snake::SetHeadLocation(Coordinates &headPos)
 	snake[0].Y = headPos.Y;
 }
 
-bool Snake::CanMove(Coordinates& newPos)
+bool Snake::ManageMovement(Coordinates& newPos)
 {
 	wchar_t ch = Console::GetCharacterOnPositon(newPos);
-	if (ch == '@')
+	if (ch == GameCharacter::SNAKE)
 	{
+		// if gameOver
 		return false;
+	}
+	if (ch == GameCharacter::FRUIT)
+	{
+		AddTail();
 	}
 	return true;
 }
