@@ -30,7 +30,7 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 {
 	int consoleWidth = 0;
 	int consoleHeight = 0;
-	if (argc == 3)
+	if (argc == 2)
 	{
 		try {
 			int width = std::stoi(argv[1]);
@@ -57,6 +57,8 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 
 	// Enter alternate buffer
 	std::cout << CSI "?1h";
+	// Clear screen
+	std::cout << CSI "2J";
 	// Disable cursor visibilty
 	std::cout << CSI "?25l";
 	// Set title 
