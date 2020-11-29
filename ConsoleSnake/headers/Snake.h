@@ -17,14 +17,13 @@ public:
 	bool MakeMove(Console& console);
 	void SetDirection(Direction direction);
 	const Direction& GetDirection();
-	bool ChangeDirection(KEY_EVENT_RECORD ker);
+	void ChangeDirection(int &keyCode);
 
 private:
 	int screenWidth;
 	int screenHeight;
 	Direction direction;
 	std::vector<Coordinates> snake;
-	Console *console;
 	
 	void SetHeadLocation(Coordinates &headPos);
 	bool CanMove(Coordinates &headPos, Console& console);

@@ -9,11 +9,20 @@
 
 #define ESC "\x1b"
 #define CSI "\x1b["
+// standard Console size
 #define CONSOLE_WIDTH 120
 #define CONSOLE_HEIGHT 40
 
-Console::Console(short width, short height)
+bool Console::SetupConsole(short width = 0, short height = 0)
 {
+	if (width == 0)
+	{
+		windowWidth = CONSOLE_WIDTH;
+	}
+	if (height == 0)
+	{
+		windowHeight = CONSOLE_HEIGHT;
+	}
 	windowHeight = height;
 	windowWidth = width;
 	handle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -26,34 +35,25 @@ Console::Console(short width, short height)
 	{
 		throw std::runtime_error("Fail to get Input handle");
 	}
-}
-
-bool Console::SetupConsole()
-{
 	bool fSuccess = EnableVTMode();
 	FixConsoleSize();
 	fSuccess = SetConsoleBuffer();
 	return fSuccess;
 }
 
-const HANDLE Console::GetConsoleHandle() const
+const HANDLE Console::GetConsoleHandle()
 {
 	return handle;
 }
 
-const HANDLE Console::GetConsoleInputHandle() const
+const HANDLE Console::GetConsoleInputHandle()
 {
 	return inHandle;
 }
 
-Coordinates Console::GetConsoleWindowSize() const
+Coordinates Console::GetConsoleWindowSize()
 {
-	CONSOLE_SCREEN_BUFFER_INFO ScreenBufferInfo;
-	GetConsoleScreenBufferInfo(handle, &ScreenBufferInfo);
-	Coordinates size;
-	size.X = ScreenBufferInfo.srWindow.Right - ScreenBufferInfo.srWindow.Left + 1;
-	size.Y = ScreenBufferInfo.srWindow.Bottom - ScreenBufferInfo.srWindow.Top + 1;
-	return size;
+	return {windowWidth, windowHeight};
 }
 
 bool Console::EnableVTMode()
@@ -106,7 +106,7 @@ bool Console::SetConsoleBuffer()
 	}
 }
 
-Coordinates Console::GetConsoleCursorPosition() const
+Coordinates Console::GetConsoleCursorPosition()
 {
 	CONSOLE_SCREEN_BUFFER_INFO cbsi;
 	Coordinates size{ 0, 0 };
@@ -159,12 +159,12 @@ bool Console::CheckKeyReleased(int* keyCode)
 	DWORD numberOfEvents;
 	DWORD cNumRead;
 	PINPUT_RECORD irInBuf;
-	GetNumberOfConsoleInputEvents(handle, &numberOfEvents);
+	GetNumberOfConsoleInputEvents(inHandle, &numberOfEvents);
 	if (numberOfEvents > 0)
 	{
 		irInBuf = new INPUT_RECORD[numberOfEvents];
 		ReadConsoleInput(
-			handle,			// input buffer handle
+			inHandle,			// input buffer handle
 			irInBuf,		// buffer to read into
 			numberOfEvents,	// size of read buffer
 			&cNumRead);		// number of records read

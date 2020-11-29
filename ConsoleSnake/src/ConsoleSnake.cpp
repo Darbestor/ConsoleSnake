@@ -15,7 +15,17 @@
 #define CONSOLE_WIDTH 120
 #define CONSOLE_HEIGHT 40
 
-VOID HandleInput();
+VOID HandleInput(int &keyCode, Console &console, Snake &snake)
+{
+	switch (keyCode)
+	{
+	case VK_LEFT:
+	case VK_RIGHT:
+	case VK_UP:
+	case VK_DOWN:
+		snake.ChangeDirection(keyCode);
+	}
+}
 
 int __cdecl wmain(int argc, WCHAR* argv[])
 {
@@ -54,17 +64,17 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	{
 		if (console.CheckKeyReleased(&keyCode))
 		{
-
+			HandleInput(keyCode, console, snake);
 		}
 		if (!snake.MakeMove(console))
 		{
+			std::cout << CSI "2J";
 			std::cout << "You lost!";
 			break;
 		}
 
 		auto t = clock();
-		while (difftime(clock(), t) < 250) {}
-		//std::cout << CSI "2J";
+		while (difftime(clock(), t) < 50) {}
 		i++;
 		if (i % 10 == 0)
 		{
