@@ -4,6 +4,7 @@
 #include "Console.h"
 #include "Snake.h"
 #define DEFINE_CONSOLEV2_PROPERTIES
+#define _O_U16TEXT  0x20000
 #include <iostream>
 #include <string>
 
@@ -45,6 +46,10 @@ bool Console::SetupConsole(short width, short height)
 	}
 	FixConsoleSize();
 	fSuccess = SetConsoleBuffer();
+	if (!SetConsoleOutputCP(CP_UTF8))
+	{
+		throw std::runtime_error("Fail to set unicode");
+	}
 	return fSuccess;
 }
 
@@ -170,7 +175,7 @@ bool Console::CheckKeyReleased(int* keyCode)
 	if (numberOfEvents > 0)
 	{
 		irInBuf = new INPUT_RECORD[numberOfEvents];
-		ReadConsoleInput(
+		ReadConsoleInputW(
 			inHandle,			// input buffer handle
 			irInBuf,		// buffer to read into
 			numberOfEvents,	// size of read buffer

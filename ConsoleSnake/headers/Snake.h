@@ -4,7 +4,7 @@
 #include "Direction.h"
 #include <windows.h>
 
-class Console;
+class Fruit;
 
 class Snake
 {
@@ -14,7 +14,7 @@ public:
 	~Snake();
 
 	void AddTail();
-	bool MakeMove();
+	bool MakeMove(Fruit &fruit);
 	void SetDirection(Direction direction);
 	const Direction& GetDirection();
 	void ChangeDirection(int &keyCode);
@@ -26,6 +26,6 @@ private:
 	std::vector<Coordinates> snake;
 	
 	void SetHeadLocation(Coordinates &headPos);
-	bool ManageMovement(Coordinates &headPos);
+	bool ManageMovement(Coordinates &headPos, Fruit& fruit);
 };
 

@@ -5,6 +5,8 @@
 // Standard library C-style
 #include <wchar.h>
 #include <ctime>
+#include <io.h>
+#include <fcntl.h>
 #include "Console.h"
 #include "Snake.h"
 #include "Fruit.h"
@@ -12,6 +14,7 @@
 // Escape sequences
 #define ESC "\x1b"
 #define CSI "\x1b["
+#define OCS "\x1b]"
 
 VOID HandleInput(int &keyCode, Snake &snake)
 {
@@ -27,6 +30,7 @@ VOID HandleInput(int &keyCode, Snake &snake)
 
 int __cdecl wmain(int argc, WCHAR* argv[])
 {
+	_setmode(_fileno(stdout), _O_WTEXT);
 	int consoleWidth = 0;
 	int consoleHeight = 0;
 	if (argc == 3)
@@ -56,28 +60,44 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 
 	// Enter alternate buffer
 	std::cout << CSI "?1h";
+	// Disable cursor visibilty
+	std::cout << CSI "?25l";
+	// Set title 
+	std::cout << OCS "2;Console Snake\x07";
+
 	int i = 0;
 	int keyCode;
+	double timeDiff = 500;
+	double timeToSpeedUp = 10000;
+	auto initialTime = clock();
 	while (true)
 	{
 		if (Console::CheckKeyReleased(&keyCode))
 		{
 			HandleInput(keyCode, snake);
 		}
-		if (!snake.MakeMove())
+		if (!snake.MakeMove(fruit))
 		{
+			// Clear screen
 			std::cout << CSI "2J";
+			// Reset cursor position
+			std::cout << CSI "1;1H";
 			std::cout << "You lost!";
 			break;
 		}
-
-		auto t = clock();
-		while (difftime(clock(), t) < 50) {}
-		i++;
-		if (i % 10 == 0)
+		if (!fruit.GetSpawned())
 		{
 			fruit.SpawnFruit();
 		}
+		if (difftime(clock(), initialTime) > timeToSpeedUp && timeDiff > 1)
+		{
+			timeDiff /= 1.5;
+			timeToSpeedUp += 10000;
+			initialTime = clock();
+		}
+
+		auto t = clock();
+		while (difftime(clock(), t) < timeDiff) {}
 	}
 
 	// Exit the alternate buffer

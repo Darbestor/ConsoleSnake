@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Console.h"
 #include "GameCharacter.h"
+#include "Fruit.h"
 
 Snake::Snake(Coordinates& screenSize) :
 	direction(Direction::RIGHT)
@@ -16,7 +17,7 @@ Snake::~Snake()
 {
 }
 
-bool Snake::MakeMove()
+bool Snake::MakeMove(Fruit &fruit)
 {
 	Coordinates headPos = Coordinates(snake.front());
 	Coordinates tailPos = Coordinates(snake.back());
@@ -26,7 +27,7 @@ bool Snake::MakeMove()
 		std::iter_swap(snake.rbegin() + i, snake.rbegin() + i + 1);
 	}
 	SetHeadLocation(headPos);
-	if (!ManageMovement(headPos))
+	if (!ManageMovement(headPos, fruit))
 		return false;
 	Console::DrawChar(snake.front(), GameCharacter::SNAKE);
 	Console::RemoveChar(tailPos);
@@ -96,7 +97,7 @@ void Snake::SetHeadLocation(Coordinates &headPos)
 	snake[0].Y = headPos.Y;
 }
 
-bool Snake::ManageMovement(Coordinates& newPos)
+bool Snake::ManageMovement(Coordinates& newPos, Fruit& fruit)
 {
 	wchar_t ch = Console::GetCharacterOnPositon(newPos);
 	if (ch == GameCharacter::SNAKE)
@@ -106,6 +107,7 @@ bool Snake::ManageMovement(Coordinates& newPos)
 	}
 	if (ch == GameCharacter::FRUIT)
 	{
+		fruit.SetSpawned(false);
 		AddTail();
 	}
 	return true;
