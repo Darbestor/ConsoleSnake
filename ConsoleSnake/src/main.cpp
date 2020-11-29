@@ -5,8 +5,6 @@
 // Standard library C-style
 #include <wchar.h>
 #include <ctime>
-#include <io.h>
-#include <fcntl.h>
 #include "Console.h"
 #include "Snake.h"
 #include "Fruit.h"
@@ -30,7 +28,6 @@ VOID HandleInput(int &keyCode, Snake &snake)
 
 int __cdecl wmain(int argc, WCHAR* argv[])
 {
-	_setmode(_fileno(stdout), _O_WTEXT);
 	int consoleWidth = 0;
 	int consoleHeight = 0;
 	if (argc == 3)
