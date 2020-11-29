@@ -15,7 +15,7 @@ Snake::~Snake()
 {
 }
 
-bool Snake::MakeMove(Console &console)
+bool Snake::MakeMove()
 {
 	Coordinates headPos = Coordinates(snake.front());
 	Coordinates tailPos = Coordinates(snake.back());
@@ -25,10 +25,10 @@ bool Snake::MakeMove(Console &console)
 		std::iter_swap(snake.rbegin() + i, snake.rbegin() + i + 1);
 	}
 	SetHeadLocation(headPos);
-	if (!CanMove(headPos, console))
+	if (!CanMove(headPos))
 		return false;
-	console.DrawChar(snake.front());
-	console.RemoveChar(tailPos);
+	Console::DrawChar(snake.front());
+	Console::RemoveChar(tailPos);
 	return true;
 }
 
@@ -95,9 +95,9 @@ void Snake::SetHeadLocation(Coordinates &headPos)
 	snake[0].Y = headPos.Y;
 }
 
-bool Snake::CanMove(Coordinates& newPos, Console &console)
+bool Snake::CanMove(Coordinates& newPos)
 {
-	wchar_t ch = console.GetCharacterOnPositon(newPos);
+	wchar_t ch = Console::GetCharacterOnPositon(newPos);
 	if (ch == '@')
 	{
 		return false;

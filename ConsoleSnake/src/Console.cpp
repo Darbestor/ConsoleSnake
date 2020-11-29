@@ -13,18 +13,21 @@
 #define CONSOLE_WIDTH 120
 #define CONSOLE_HEIGHT 40
 
-bool Console::SetupConsole(short width = 0, short height = 0)
+short Console::windowWidth = CONSOLE_WIDTH;
+short Console::windowHeight = CONSOLE_HEIGHT;
+HANDLE Console::handle = nullptr;
+HANDLE Console::inHandle = nullptr;
+
+bool Console::SetupConsole(short width, short height)
 {
-	if (width == 0)
+	if (width != 0)
 	{
-		windowWidth = CONSOLE_WIDTH;
+		windowWidth = width;
 	}
-	if (height == 0)
+	if (height != 0)
 	{
-		windowHeight = CONSOLE_HEIGHT;
+		windowHeight = height;
 	}
-	windowHeight = height;
-	windowWidth = width;
 	handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (handle == INVALID_HANDLE_VALUE)
 	{
@@ -36,6 +39,10 @@ bool Console::SetupConsole(short width = 0, short height = 0)
 		throw std::runtime_error("Fail to get Input handle");
 	}
 	bool fSuccess = EnableVTMode();
+	if (!fSuccess)
+	{
+		return fSuccess;
+	}
 	FixConsoleSize();
 	fSuccess = SetConsoleBuffer();
 	return fSuccess;
@@ -95,9 +102,9 @@ bool Console::SetConsoleBuffer()
 	bufferInfo.cbSize = sizeof(CONSOLE_SCREEN_BUFFER_INFOEX);
 	auto fasd = GetConsoleScreenBufferInfoEx(handle, &bufferInfo);
 
-	bufferInfo.dwMaximumWindowSize = { CONSOLE_WIDTH, CONSOLE_HEIGHT };
-	bufferInfo.dwSize = { CONSOLE_WIDTH, CONSOLE_HEIGHT };
-	bufferInfo.srWindow = { 0, 0, CONSOLE_HEIGHT - 2, CONSOLE_WIDTH - 2 };
+	bufferInfo.dwMaximumWindowSize = { windowWidth, windowHeight };
+	bufferInfo.dwSize = { windowWidth, windowHeight };
+	bufferInfo.srWindow = { 0, 0, windowHeight - 2, windowWidth - 2 };
 	
 	// Change the console window size:
 	if (!SetConsoleScreenBufferInfoEx(handle, &bufferInfo))

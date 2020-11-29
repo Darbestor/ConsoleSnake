@@ -14,7 +14,7 @@ public:
 	~Snake();
 
 	void AddTail();
-	bool MakeMove(Console& console);
+	bool MakeMove();
 	void SetDirection(Direction direction);
 	const Direction& GetDirection();
 	void ChangeDirection(int &keyCode);
@@ -26,6 +26,6 @@ private:
 	std::vector<Coordinates> snake;
 	
 	void SetHeadLocation(Coordinates &headPos);
-	bool CanMove(Coordinates &headPos, Console& console);
+	bool CanMove(Coordinates &headPos);
 };
 

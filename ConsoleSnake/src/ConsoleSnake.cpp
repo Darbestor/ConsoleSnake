@@ -12,10 +12,7 @@
 #define ESC "\x1b"
 #define CSI "\x1b["
 
-#define CONSOLE_WIDTH 120
-#define CONSOLE_HEIGHT 40
-
-VOID HandleInput(int &keyCode, Console &console, Snake &snake)
+VOID HandleInput(int &keyCode, Snake &snake)
 {
 	switch (keyCode)
 	{
@@ -29,31 +26,30 @@ VOID HandleInput(int &keyCode, Console &console, Snake &snake)
 
 int __cdecl wmain(int argc, WCHAR* argv[])
 {
-	int consoleWidth = CONSOLE_WIDTH;
-	int consoleHeight = CONSOLE_HEIGHT;
+	int consoleWidth = 0;
+	int consoleHeight = 0;
 	if (argc == 3)
 	{
 		try {
 			int width = std::stoi(argv[1]);
 			int height = std::stoi(argv[2]);
-			consoleWidth = width;
-			consoleHeight = height;
+			int consoleWidth = width;
+			int consoleHeight = height;
 		}
 		catch (std::exception const& e) {
 			std::cout << "Argument type invalid\n";
 			return -1;
 		}
 	}
-	auto console = Console(CONSOLE_WIDTH, CONSOLE_HEIGHT);
-	bool fSuccess = console.SetupConsole();
+	bool fSuccess = Console::SetupConsole(consoleWidth, consoleHeight);
 	if (!fSuccess)
 	{
 		printf("Unable to enter VT processing mode. Quitting.\n");
 		return -1;
 	}
-	HANDLE handle = console.GetConsoleHandle();
-	HANDLE inHandle = console.GetConsoleInputHandle();
-	auto screenSize = console.GetConsoleWindowSize();
+	HANDLE handle = Console::GetConsoleHandle();
+	HANDLE inHandle = Console::GetConsoleInputHandle();
+	auto screenSize = Console::GetConsoleWindowSize();
 	auto snake = Snake(screenSize);
 
 	// Enter alternate buffer
@@ -62,11 +58,11 @@ int __cdecl wmain(int argc, WCHAR* argv[])
 	int keyCode;
 	while (true)
 	{
-		if (console.CheckKeyReleased(&keyCode))
+		if (Console::CheckKeyReleased(&keyCode))
 		{
-			HandleInput(keyCode, console, snake);
+			HandleInput(keyCode, snake);
 		}
-		if (!snake.MakeMove(console))
+		if (!snake.MakeMove())
 		{
 			std::cout << CSI "2J";
 			std::cout << "You lost!";
